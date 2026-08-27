@@ -34,7 +34,7 @@ This repository extends the official [ESA-ADB](https://github.com/kplabs-pl/ESA-
 
 **Completed so far:** Telemanom-ESA on Mission1 lightweight subset (6 channels, `layers=[80, 80]`), 3-month training horizon, full 84-month test timeline, CPU execution with memory optimizations.
 
-**Planned:** Full Mission1 target-channel Telemanom-ESA (`layers=[134, 134]`, 58 target channels) on GPU hardware — see `mission1_experiments.py`.
+**Planned:** Full Mission1 target-channel Telemanom-ESA via `mission1_telemanom_esa_full.py` (`layers=[134, 134]`, 58 target channels) on GPU hardware.
 
 ## Initial requirements
 
@@ -113,9 +113,25 @@ python mission1_telemanom_esa_subset_execute_only.py \
 
 Configuration matches the paper’s **Telemanom-ESA** variant (`min_error_value=0`, not Telemanom-ESA-Pruned which uses `0.007`).
 
-### Telemanom-ESA — full Mission1 target channels
+### Telemanom-ESA — full Mission1 target channels (paper Table 2 full set)
 
-The paper’s full-channel setup uses all **58 target channels** with `layers=[134, 134]` (see `mission1_experiments.py`). That configuration requires substantially more RAM/GPU; use the lab GPU workflow for those runs.
+58 **target** channels (`layers=[134, 134]`). `input_channels` is omitted so the algorithm uses all telemetry + telecommand columns in the preprocessed CSV as input — same as [`mission1_experiments.py`](mission1_experiments.py). Requires a GPU lab machine (~64 GB RAM recommended).
+
+```bash
+conda activate timeeval
+python mission1_telemanom_esa_full.py
+python mission1_telemanom_esa_full.py --dataset 84_months
+python mission1_telemanom_esa_full.py --memory-gb 48   # optional Docker RAM cap
+```
+
+Execute-only (reuse a trained full-channel model):
+
+```bash
+python mission1_telemanom_esa_full_execute_only.py \
+  --model-dir results/<timestamp>/Telemanom-ESA/<hash>/ESA-Mission1/3_months/1
+```
+
+Compare results to **Table 2 — Mission1 full set of channels** (not the lightweight 41–46 block).
 
 ### Notes
 - evaluation pipeline with novel time-aware metrics can only be run for datasets following the same structure as ESA Anomalies Dataset (with labels.csv and anomaly_types.csv)
