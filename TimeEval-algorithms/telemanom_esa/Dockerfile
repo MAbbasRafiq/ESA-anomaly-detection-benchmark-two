@@ -41,3 +41,4 @@ ENV ALGORITHM_MAIN="/app/algorithm.py"
 
 COPY telemanom /app/telemanom
 COPY algorithm.py /app/
+RUN chmod +x /entrypoint.sh

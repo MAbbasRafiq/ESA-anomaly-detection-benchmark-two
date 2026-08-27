@@ -137,23 +137,50 @@ class DockerAdapter(Adapter):
         cpu_shares = int(cpu_limit * 1e9)
         print(f"Restricting container to {cpu_limit} CPUs and {memory_limit / GB:.3f} GB RAM")
 
-        return client.containers.run(
-            f"{self.image_name}:{self.tag}",
-            f"execute-algorithm '{algorithm_interface.to_json_string()}'",
-            volumes={
+        # Allow host swap inside the container on CPU-only / low-RAM hosts.
+        # TimeEval's default (memswap_limit == mem_limit) disables swap and caused
+        # Telemanom-ESA execute to OOM (exit 137) at a 12GB Docker cap.
+        has_gpu = Path("/dev/nvidia0").exists() or Path("/dev/nvidiactl").exists()
+        if has_gpu:
+            mem_swappiness = 0
+            memswap_limit = memory_limit
+        else:
+            mem_swappiness = 60
+            # physical RAM + up to 48 GiB swap
+            memswap_limit = memory_limit + 48 * GB
+            print(f"CPU-only host: enabling container swap "
+                  f"(mem={memory_limit / GB:.1f} GiB, mem+swap={memswap_limit / GB:.1f} GiB)")
+
+        run_kwargs = {
+            "volumes": {
                 str(dataset_path.parent.resolve()): {"bind": str(DATASET_TARGET_PATH), "mode": "ro"},
                 str(self._results_path(args, absolute=True)): {"bind": str(RESULTS_TARGET_PATH), "mode": "rw"}
             },
-            environment={
+            "environment": {
                 "LOCAL_GID": gid,
                 "LOCAL_UID": uid
             },
-            mem_swappiness=0,
-            mem_limit=memory_limit,
-            memswap_limit=memory_limit,
-            nano_cpus=cpu_shares,
-            detach=True,
-            device_requests=[DeviceRequest(device_ids=["all"], capabilities=[['gpu']])]
+            "mem_swappiness": mem_swappiness,
+            "mem_limit": memory_limit,
+            "memswap_limit": memswap_limit,
+            "nano_cpus": cpu_shares,
+            "detach": True,
+        }
+
+        # Only request GPUs when the host actually exposes NVIDIA devices.
+        # On CPU-only WSL machines, DeviceRequest causes container create to fail.
+        if has_gpu:
+            print("NVIDIA device detected; requesting GPU for container.")
+            run_kwargs["device_requests"] = [
+                DeviceRequest(device_ids=["all"], capabilities=[["gpu"]])
+            ]
+        else:
+            print("No NVIDIA device found; running container on CPU.")
+
+        return client.containers.run(
+            f"{self.image_name}:{self.tag}",
+            f"execute-algorithm '{algorithm_interface.to_json_string()}'",
+            **run_kwargs,
         )
 
     def _run_until_timeout(self, container: Container, args: dict) -> None:

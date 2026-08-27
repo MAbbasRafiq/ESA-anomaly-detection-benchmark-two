@@ -75,16 +75,44 @@ class AlgorithmArgs(argparse.Namespace):
     def _read_dataset(self):
         columns = pd.read_csv(self.dataInput, index_col="timestamp", nrows=0).columns.tolist()
         anomaly_columns = [x for x in columns if x.startswith("is_anomaly")]
-        data_columns = columns[:-len(anomaly_columns)]
+        # Prefer columns that are not anomaly labels (order preserved)
+        data_columns = [c for c in columns if not c.startswith("is_anomaly")]
+
+        # When channels are specified, load only those columns to cut peak RAM
+        # (full Mission1 test CSV is ~7GB and OOMs on ~16GB hosts inside Docker,
+        # which also disables swap via memswap_limit).
+        requested = []
+        for ch_list in (self.customParameters.input_channels, self.customParameters.target_channels):
+            if ch_list:
+                requested.extend(ch_list)
+        requested = list(dict.fromkeys(requested))
+        usecols = None
+        if requested:
+            wanted = [c for c in requested if c in data_columns]
+            if wanted:
+                if len(anomaly_columns) == 1 and anomaly_columns[0] == "is_anomaly":
+                    anom_cols = ["is_anomaly"]
+                else:
+                    anom_cols = [f"is_anomaly_{ch}" for ch in wanted if f"is_anomaly_{ch}" in anomaly_columns]
+                usecols = ["timestamp"] + wanted + anom_cols
+                data_columns = wanted
+                anomaly_columns = anom_cols
+                print(f"Loading subset columns only ({len(wanted)} channels): {wanted}")
 
         dtypes = {col: np.float32 for col in data_columns}
         dtypes.update({col: np.uint8 for col in anomaly_columns})
-        dataset = pd.read_csv(self.dataInput, index_col="timestamp", parse_dates=True, dtype=dtypes)
+        dataset = pd.read_csv(
+            self.dataInput,
+            index_col="timestamp",
+            parse_dates=True,
+            dtype=dtypes,
+            usecols=usecols,
+        )
 
         return dataset, data_columns, anomaly_columns
 
     @staticmethod
-    def get_valid_channels(raw_channels: list[str], data_cols: list[str], sort: bool = False) -> list[str]:
+    def get_valid_channels(raw_channels: List[str], data_cols: List[str], sort: bool = False) -> List[str]:
         if not raw_channels:
             print(f"No channels provided. Using all data columns: {data_cols}")
             valid_channels = data_cols
@@ -108,8 +136,8 @@ class AlgorithmArgs(argparse.Namespace):
         )
 
     @staticmethod
-    def _unravel_global_annotation(dataset: pd.DataFrame, original_anomaly_cols: list[str],
-                                   target_channel_anomaly_cols: list[str]) -> pd.DataFrame:
+    def _unravel_global_annotation(dataset: pd.DataFrame, original_anomaly_cols: List[str],
+                                   target_channel_anomaly_cols: List[str]) -> pd.DataFrame:
         if len(original_anomaly_cols) == 1 and original_anomaly_cols[0] == "is_anomaly":  # Handle datasets with only one global is_anomaly column
             for col in target_channel_anomaly_cols:
                 dataset[col] = dataset["is_anomaly"]

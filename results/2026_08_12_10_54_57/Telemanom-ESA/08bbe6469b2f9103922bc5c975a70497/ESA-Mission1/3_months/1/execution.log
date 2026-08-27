@@ -1,0 +1,23 @@
+Starting evaluation of experiment Telemanom-ESA-ESA-Mission1-3_months-08bbe6469b2f9103922bc5c975a70497-1
+=============================================
+
+Performing training for SEMI_SUPERVISED algorithm Telemanom-ESA
+Running container 'registry.gitlab.hpi.de/akita/i/telemanom_esa:latest' with uid=1000 and gid=1000 privileges in ExecutionType.TRAIN mode.
+Restricting container to 8.0 CPUs and 12.000 GB RAM
+No NVIDIA device found; running container on CPU.
+
+#### Docker container logs ####
+2026-08-12 05:56:33.970148: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+2026-08-12 05:56:41.570089: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcuda.so.1
+2026-08-12 05:56:41.570785: E tensorflow/stream_executor/cuda/cuda_driver.cc:328] failed call to cuInit: UNKNOWN ERROR (34)
+2026-08-12 05:56:41.571230: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (2331a5f43734): /proc/driver/nvidia/version does not exist
+Traceback (most recent call last):
+  File "/app/algorithm.py", line 51, in <module>
+    class AlgorithmArgs(argparse.Namespace):
+  File "/app/algorithm.py", line 115, in AlgorithmArgs
+    def get_valid_channels(raw_channels: list[str], data_cols: list[str], sort: bool = False) -> list[str]:
+TypeError: 'type' object is not subscriptable
+
+###############################
+
+Docker algorithm failed with status code '1', consider container logs below.

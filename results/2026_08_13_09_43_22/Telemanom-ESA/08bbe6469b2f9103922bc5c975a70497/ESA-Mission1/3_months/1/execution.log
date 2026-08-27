@@ -1,0 +1,5 @@
+Starting evaluation of experiment Telemanom-ESA-ESA-Mission1-3_months-08bbe6469b2f9103922bc5c975a70497-1
+=============================================
+
+Skipping training — reused model from /home/abbas/ESA_ADB/results/2026_08_12_10_58_07/Telemanom-ESA/08bbe6469b2f9103922bc5c975a70497/ESA-Mission1/3_months/1
+Copied model.h5 (+ means/stds) into /home/abbas/ESA_ADB/results/2026_08_13_09_43_22/Telemanom-ESA/08bbe6469b2f9103922bc5c975a70497/ESA-Mission1/3_months/1

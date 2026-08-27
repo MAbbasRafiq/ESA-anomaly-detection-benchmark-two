@@ -181,12 +181,27 @@ class Model:
             raise ValueError('l_s ({}) too large for stream length.'
                              .format(self.config.window_size))
 
-        # simulate data arriving in batches, predict each batch
-        self.y_hat = []
-        for i in range(num_batches):
-            self.y_hat.append(self.model(channel.generator_test[i]).numpy()[:, 0, :])
+        # Preallocate one array instead of appending ~100k small ndarrays
+        # (Python object overhead previously OOM'd ~12GB Docker limits).
+        n_samples = channel.generator_test.nb_samples
+        n_channels = len(self.config.target_channel_indices)
+        self.y_hat = np.empty((n_samples, n_channels), dtype=np.float32)
+        cursor = 0
+        log_every = max(1, num_batches // 20)
 
-        self.y_hat = np.concatenate(self.y_hat)
+        for i in range(num_batches):
+            if i % log_every == 0:
+                logger.info("Predict batch %d/%d (%.0f%%)", i, num_batches, 100.0 * i / num_batches)
+                print("Predict batch {}/{} ({:.0f}%)".format(i, num_batches, 100.0 * i / num_batches),
+                      flush=True)
+            batch_pred = self.model(channel.generator_test[i], training=False).numpy()[:, 0, :]
+            n = int(batch_pred.shape[0])
+            self.y_hat[cursor:cursor + n] = batch_pred.astype(np.float32, copy=False)
+            cursor += n
+
+        self.y_hat = self.y_hat[:cursor]
+        logger.info("Prediction complete: %d samples", cursor)
+        print("Prediction complete: {} samples".format(cursor), flush=True)
 
         # Revert standardization
         self.y_hat = self.y_hat * channel.generator_test.train_stds[self.config.target_channel_indices] + channel.generator_test.train_means[self.config.target_channel_indices]

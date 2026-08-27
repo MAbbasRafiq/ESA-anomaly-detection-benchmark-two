@@ -1,7 +1,27 @@
+# Dataset (download from Zenodo — do not commit)
 data/
-results/
+data.zip
+
+# Local installers / bulk junk
+Miniconda3-*.sh
+
+# Results: ignore bulk by default; keep small summary / model files
+results/**
+!results/**/
+!results/**/results.csv
+!results/**/metrics.csv
+!results/**/hyper_params.json
+!results/**/execution.log
+!results/**/model.h5
+!results/**/model.h5.means
+!results/**/model.h5.stds
+
+# Explicitly keep giant dumps out even if patterns change
+results/**/docker-algorithm-scores*.csv
+results/**/model.h5.reconstruction.csv
+results/**/anomaly_scores.ts
+
 timeeval_experiments/results
-**/*.log
 
 ########################################
 # Python.gitignore from github/gitignore
@@ -230,7 +250,18 @@ fabric.properties
 # Dask
 dask-worker-space
 *.svg
+*.pkl
+
+# Model weight / norm files outside results/
 *.means
 *.stds
 *.h5
-*.pkl
+
+# Final allowlist for small result artifacts (must be last so it wins over *.log / *.h5)
+!results/**/results.csv
+!results/**/metrics.csv
+!results/**/hyper_params.json
+!results/**/execution.log
+!results/**/model.h5
+!results/**/model.h5.means
+!results/**/model.h5.stds

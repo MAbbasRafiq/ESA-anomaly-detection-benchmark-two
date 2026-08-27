@@ -21,6 +21,20 @@ The dataset results from the work of an 18-month project carried by an industry 
 
 The introduction below describes how to reproduce results presented in the ESA-ADB paper using the provided modified fork of the TimeEval framework.
 
+This repository extends the official [ESA-ADB](https://github.com/kplabs-pl/ESA-ADB) codebase with **Telemanom-ESA reproduction work on ESA Mission1**, including resource-efficient runners for the official lightweight channel subset (channels 41–46) and patches to run on CPU-only hosts with limited RAM. The raw dataset is **not** included in Git — download it from Zenodo (see below).
+
+## About this repository
+
+| Item | In Git | Notes |
+| --- | --- | --- |
+| Source code, TimeEval fork, Docker algorithms | Yes | Includes `mission1_telemanom_esa_subset*.py` runners |
+| ESA telemetry (`data/`) | No | Download from [Zenodo](https://doi.org/10.5281/zenodo.12528696) |
+| Small result summaries (`metrics.csv`, `results.csv`, `model.h5`, …) | Yes | Under `results/` when committed |
+| Large score dumps (`docker-algorithm-scores*.csv`, `*.reconstruction.csv`, …) | No | Gitignored (~1 GB each); regenerate locally |
+
+**Completed so far:** Telemanom-ESA on Mission1 lightweight subset (6 channels, `layers=[80, 80]`), 3-month training horizon, full 84-month test timeline, CPU execution with memory optimizations.
+
+**Planned:** Full Mission1 target-channel Telemanom-ESA (`layers=[134, 134]`, 58 target channels) on GPU hardware — see `mission1_experiments.py`.
 
 ## Initial requirements
 
@@ -43,9 +57,13 @@ For Windows it is recommended to run the following command before cloning to pre
 
 ### Docker
 1. Install Docker Engine, version >= 23.
-2. Build Docker containers with algorithms of interest (e.g., listed in mission1_experiments.py) using instruction from README in the TimeEval-algorithms folder. 
-   For our Telemanom-ESA, it is enough to run `sudo docker build -t registry.gitlab.hpi.de/akita/i/telemanom_esa ./telemanom_esa`.
-   For our DC-VAE-ESA, it is enough to run `sudo docker build -t registry.gitlab.hpi.de/akita/i/dc_vae ./dc_vae`.
+2. Build Docker containers with algorithms of interest (e.g., listed in mission1_experiments.py) using instruction from README in the TimeEval-algorithms folder.
+   From the `TimeEval-algorithms` directory:
+   ```bash
+   sudo docker build -t registry.gitlab.hpi.de/akita/i/telemanom_esa ./telemanom_esa
+   sudo docker build -t registry.gitlab.hpi.de/akita/i/dc_vae ./dc_vae
+   ```
+   Rebuild the Telemanom-ESA image after pulling changes to `TimeEval-algorithms/telemanom_esa/` (memory and CPU/GPU fixes).
 
 ## Preparing datasets
 
@@ -53,7 +71,7 @@ Download raw ESA Anomalies Dataset from the link https://doi.org/10.5281/zenodo.
 
 ### Generating preprocessed data for experiments
 
-There are separate script to generate preprocessed data for TimeEval framework for each mission. The scripts are located in notebooks\data-prep folder. From the notebooks\data-prep folder run:
+There are separate scripts to generate preprocessed data for TimeEval framework for each mission. The scripts are located in `notebooks/data-prep`. From that folder run:
 
 Mission1: 
 ```
@@ -67,11 +85,37 @@ python Mission2_semiunsupervised_prep_from_raw.py ../../data/ESA-Mission2
 The scripts generate all necessary files to data/preprocessed/multivariate folders and add records to data/preprocessed/datasets.csv if necessary (records for ESA-ADB are already added as a part of this repository). Note that the preprocessing may take a few hours on a standard PC.
 
 ## Running experiments
-There is a separate script in the main folder of the repo to run a full grid of experiments for each mission:
-- Mission1: mission1_experiments.py
-- Mission2: mission2_experiments.py
 
-The scripts configure and run all algorithms in Docker containers. Results are generated to 'results' folder. On a standard PC, it may be necessary to run algorithms separately, one by one.
+There is a separate script in the main folder of the repo to run a full grid of experiments for each mission:
+- Mission1: `mission1_experiments.py` (lightweight subset **and** full target-channel Telemanom-ESA)
+- Mission2: `mission2_experiments.py`
+
+The scripts configure and run all algorithms in Docker containers. Results are generated to the `results/` folder. On a standard PC, it may be necessary to run algorithms separately, one by one.
+
+### Telemanom-ESA — Mission1 lightweight subset (channels 41–46)
+
+For a single Telemanom-ESA run on the official ESA-ADB lightweight subset (6 channels, `layers=[80, 80]`), use the dedicated runner instead of the full experiment grid:
+
+```bash
+conda activate timeeval
+python mission1_telemanom_esa_subset.py
+python mission1_telemanom_esa_subset.py --dataset 10_months   # optional train horizon
+```
+
+This script is tuned for ~16 GB RAM hosts: one train horizon at a time, selective CSV column loading during execute, and CPU fallback when no GPU is available.
+
+To **re-run execute only** and reuse an existing trained model (skip ~9 h training):
+
+```bash
+python mission1_telemanom_esa_subset_execute_only.py \
+  --model-dir results/<timestamp>/Telemanom-ESA/<hash>/ESA-Mission1/3_months/1
+```
+
+Configuration matches the paper’s **Telemanom-ESA** variant (`min_error_value=0`, not Telemanom-ESA-Pruned which uses `0.007`).
+
+### Telemanom-ESA — full Mission1 target channels
+
+The paper’s full-channel setup uses all **58 target channels** with `layers=[134, 134]` (see `mission1_experiments.py`). That configuration requires substantially more RAM/GPU; use the lab GPU workflow for those runs.
 
 ### Notes
 - evaluation pipeline with novel time-aware metrics can only be run for datasets following the same structure as ESA Anomalies Dataset (with labels.csv and anomaly_types.csv)

@@ -1,0 +1,60 @@
+Starting evaluation of experiment Telemanom-ESA-ESA-Mission1-3_months-08bbe6469b2f9103922bc5c975a70497-1
+=============================================
+
+Skipping training; reused model from /home/abbas/ESA_ADB/results/2026_08_12_10_58_07/Telemanom-ESA/08bbe6469b2f9103922bc5c975a70497/ESA-Mission1/3_months/1
+Performing execution for SEMI_SUPERVISED algorithm Telemanom-ESA
+Running container 'registry.gitlab.hpi.de/akita/i/telemanom_esa:latest' with uid=1000 and gid=1000 privileges in ExecutionType.EXECUTE mode.
+Restricting container to 8.0 CPUs and 11.000 GB RAM
+CPU-only host: enabling container swap (mem=11.0 GiB, mem+swap=59.0 GiB)
+No NVIDIA device found; running container on CPU.
+
+#### Docker container logs ####
+2026-08-14 01:59:40.871357: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcudart.so.11.0
+2026-08-14 01:59:52.900823: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcuda.so.1
+2026-08-14 01:59:52.901019: E tensorflow/stream_executor/cuda/cuda_driver.cc:328] failed call to cuInit: UNKNOWN ERROR (34)
+2026-08-14 01:59:52.901096: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (078e57d3f722): /proc/driver/nvidia/version does not exist
+2026-08-14 02:02:47.214185: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+Loading: /data/84_months.test.csv
+Loading subset columns only (6 channels): ['channel_41', 'channel_42', 'channel_43', 'channel_44', 'channel_45', 'channel_46']
+AlgorithmArgs(customParameters=CustomParameters(batch_size=70, smoothing_window_size=30, smoothing_perc=0.05, error_buffer=100, loss_metric='mse', optimizer='adam', split=0.8, validation_date_split='2000-03-11', dropout=0.3, lstm_batch_size=64, epochs=1000, layers=[80, 80], early_stopping_patience=20, early_stopping_delta=0.0003, window_size=250, prediction_window_size=10, p=0.13, min_error_value=0, use_id='internal-run-id', random_state=42, input_channels=['channel_41', 'channel_42', 'channel_43', 'channel_44', 'channel_45', 'channel_46'], input_channel_indices=[0, 1, 2, 3, 4, 5], target_channels=['channel_41', 'channel_42', 'channel_43', 'channel_44', 'channel_45', 'channel_46'], target_channel_indices=[0, 1, 2, 3, 4, 5], threshold_scores=1), dataInput='/data/84_months.test.csv', dataOutput='/results/docker-algorithm-scores.csv', executionType='execute', modelInput='/results/model.h5', modelOutput='/results/model.h5')
+Predict batch 0/105199 (0%)
+Predict batch 5259/105199 (5%)
+Predict batch 10518/105199 (10%)
+Predict batch 15777/105199 (15%)
+Predict batch 21036/105199 (20%)
+Predict batch 26295/105199 (25%)
+Predict batch 31554/105199 (30%)
+Predict batch 36813/105199 (35%)
+Predict batch 42072/105199 (40%)
+Predict batch 47331/105199 (45%)
+Predict batch 52590/105199 (50%)
+Predict batch 57849/105199 (55%)
+Predict batch 63108/105199 (60%)
+Predict batch 68367/105199 (65%)
+Predict batch 73626/105199 (70%)
+Predict batch 78885/105199 (75%)
+Predict batch 84144/105199 (80%)
+Predict batch 89403/105199 (85%)
+Predict batch 94662/105199 (90%)
+Predict batch 99921/105199 (95%)
+Predict batch 105180/105199 (100%)
+Prediction complete: 7363911 samples
+normalized prediction error: [0.00689308 0.00681002 0.00826559 0.00722537 0.00610155 0.00750496]
+
+###############################
+
+Scoring algorithm Telemanom-ESA with Rare Event_Anomaly,Anomaly metrics
+Scoring algorithm Telemanom-ESA with PC_Rare Event_Anomaly,PC_Anomaly,ADTQC_Rare Event_Anomaly,ADTQC_Anomaly ranking metrics
+  = {'alarming_precision': 0.7804878048780488, 'EW_precision': 0.4502464926771187, 'EW_recall': 0.49230769230769234, 'EW_F_0.50': 0.4580737650841032, 'AFF_precision': 0.7185508716077287, 'AFF_recall': 0.4924363270951063, 'AFF_F_0.50': 0.6581130358319678}
+  = {'alarming_precision': 0.7959183673469388, 'EW_precision': 0.10434966501923315, 'EW_recall': 0.6190476190476191, 'EW_F_0.50': 0.12516257865357375, 'AFF_precision': 0.6060826309258426, 'AFF_recall': 0.48578296858982334, 'AFF_F_0.50': 0.5774810614239658}
+  = {'alarming_precision': 0.8297872340425532, 'EW_precision': 0.2647178840710838, 'EW_recall': 0.609375, 'EW_F_0.50': 0.29848159461291845, 'AFF_precision': 0.7303513726458457, 'AFF_recall': 0.5672411170539556, 'AFF_F_0.50': 0.6906330484062992}
+  = {'alarming_precision': 0.8205128205128205, 'EW_precision': 0.36321118672834624, 'EW_recall': 0.5079365079365079, 'EW_F_0.50': 0.3851597439969987, 'AFF_precision': 0.6840004677175231, 'AFF_recall': 0.4606363426788904, 'AFF_F_0.50': 0.6235300960054104}
+  = {'alarming_precision': 0.8333333333333334, 'EW_precision': 0.06814816300396777, 'EW_recall': 0.546875, 'EW_F_0.50': 0.08261156871460477, 'AFF_precision': 0.6579066201832138, 'AFF_recall': 0.49959610721378933, 'AFF_F_0.50': 0.6186964837168464}
+  = {'alarming_precision': 0.8292682926829268, 'EW_precision': 0.0989438807559782, 'EW_recall': 0.5483870967741935, 'EW_F_0.50': 0.11834183319223301, 'AFF_precision': 0.6183982466823189, 'AFF_recall': 0.525858324208601, 'AFF_F_0.50': 0.5973732402148262}
+  = {'alarming_precision': 0.7857142857142857, 'EW_precision': 0.3602894577672435, 'EW_recall': 0.7586206896551724, 'EW_F_0.50': 0.40256461922162845, 'AFF_precision': 0.8483333359092872, 'AFF_recall': 0.7194058482101072, 'AFF_F_0.50': 0.8189788657174257}
+  = {'alarming_precision': 0.8064516129032258, 'EW_precision': 0.06950665267718581, 'EW_recall': 0.8928571428571429, 'EW_F_0.50': 0.08522468472939973, 'AFF_precision': 0.6465073874090049, 'AFF_recall': 0.5424217184560306, 'AFF_F_0.50': 0.6226126743106121}
+  = {'alarming_precision': 0.8, 'EW_precision': 0.18141505341934416, 'EW_recall': 0.8571428571428571, 'EW_F_0.50': 0.21537285249172042, 'AFF_precision': 0.8343335288258805, 'AFF_recall': 0.7390123133166817, 'AFF_F_0.50': 0.8133515619164976}
+  = {'alarming_precision': 0.7931034482758621, 'EW_precision': 0.2907988298806063, 'EW_recall': 0.8214285714285714, 'EW_F_0.50': 0.3339432286161134, 'AFF_precision': 0.8123635864440748, 'AFF_recall': 0.7446160383559626, 'AFF_F_0.50': 0.7978454798683409}
+  = {'alarming_precision': 0.8064516129032258, 'EW_precision': 0.04965080447431937, 'EW_recall': 0.8928571428571429, 'EW_F_0.50': 0.06121251541530457, 'AFF_precision': 0.7583769874830785, 'AFF_recall': 0.6461808544780212, 'AFF_F_0.50': 0.732925473906546}
+  = {'alarming_precision': 0.7777777777777778, 'EW_precision': 0.06352717250039651, 'EW_recall': 0.7777777777777778, 'EW_F_0.50': 0.07781992567615374, 'AFF_precision': 0.694137793297631, 'AFF_recall': 0.6158338034064557, 'AFF_F_0.50': 0.6769234707586013}

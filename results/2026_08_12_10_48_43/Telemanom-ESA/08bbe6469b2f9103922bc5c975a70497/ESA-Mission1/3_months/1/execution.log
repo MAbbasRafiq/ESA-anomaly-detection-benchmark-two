@@ -1,0 +1,7 @@
+Starting evaluation of experiment Telemanom-ESA-ESA-Mission1-3_months-08bbe6469b2f9103922bc5c975a70497-1
+=============================================
+
+Performing training for SEMI_SUPERVISED algorithm Telemanom-ESA
+Running container 'registry.gitlab.hpi.de/akita/i/telemanom_esa:latest' with uid=1000 and gid=1000 privileges in ExecutionType.TRAIN mode.
+Restricting container to 8.0 CPUs and 12.000 GB RAM
+No NVIDIA device found; running container on CPU.
